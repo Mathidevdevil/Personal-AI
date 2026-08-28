@@ -1,0 +1,28 @@
+package com.personalassistant.notification;
+
+import com.personalassistant.user.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface NotificationRepository extends JpaRepository<Notification, String> {
+
+    List<Notification> findTop20ByUserOrderByCreatedAtDesc(User user);
+
+    Page<Notification> findByUserOrderByCreatedAtDesc(User user, Pageable pageable);
+
+    Page<Notification> findByUserAndIsReadFalseOrderByCreatedAtDesc(User user, Pageable pageable);
+
+    long countByUserAndIsReadFalse(User user);
+
+    @Modifying
+    @Query("UPDATE Notification n SET n.isRead = true WHERE n.user = :user AND n.isRead = false")
+    void markAllAsReadForUser(@Param("user") User user);
+}
